@@ -37,25 +37,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectColor(tube, colorDiv) {
+        const topColor = tube.lastElementChild;
         if (currentSelection && currentSelection.color !== colorDiv) {
             const targetTubeCapacity = tube.classList.contains('small') ? 2 : 4;
             const targetTubeEmpty = tube.childNodes.length < targetTubeCapacity;
             const sameColor = currentSelection.color.style.backgroundColor === colorDiv.style.backgroundColor;
+
             if (targetTubeEmpty && (sameColor || tube.childNodes.length === 0)) {
-                moveHistory.push({ from: currentSelection.tube, to: tube, block: currentSelection.color });
-                tube.appendChild(currentSelection.color);
-                currentSelection.color.style.border = '';
-                currentSelection = null;
+                const movingColors = getTopSameColorBlocks(currentSelection.tube, currentSelection.color.style.backgroundColor);
+                moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
+
+                movingColors.forEach(block => tube.appendChild(block));
+                clearSelection();
                 checkWin();
             } else {
-                currentSelection.color.style.border = '';
-                currentSelection = null;
+                clearSelection();
             }
-        } else {
-            if (tube.childNodes.length > 0) {
-                currentSelection = { tube, color: colorDiv };
-                colorDiv.style.border = '2px solid black';
+        } else if (topColor && topColor === colorDiv) {
+            currentSelection = { tube, color: colorDiv };
+            colorDiv.style.border = '2px solid black';
+        }
+    }
+
+    function getTopSameColorBlocks(tube, color) {
+        const blocks = [];
+        for (let i = tube.childNodes.length - 1; i >= 0; i--) {
+            if (tube.childNodes[i].style.backgroundColor === color) {
+                blocks.push(tube.childNodes[i]);
+            } else {
+                break;
             }
+        }
+        return blocks.reverse();
+    }
+
+    function clearSelection() {
+        if (currentSelection) {
+            currentSelection.color.style.border = '';
+            currentSelection = null;
         }
     }
 
@@ -72,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     undoButton.addEventListener('click', () => {
         if (moveHistory.length > 0) {
             const lastMove = moveHistory.pop();
-            lastMove.from.appendChild(lastMove.block);
+            lastMove.blocks.forEach(block => lastMove.from.appendChild(block));
         }
     });
 
@@ -83,10 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (tube === event.target && currentSelection) {
                 const targetTubeCapacity = tube.classList.contains('small') ? 2 : 4;
                 if (tube.childNodes.length < targetTubeCapacity) {
-                    moveHistory.push({ from: currentSelection.tube, to: tube, block: currentSelection.color });
-                    tube.appendChild(currentSelection.color);
-                    currentSelection.color.style.border = '';
-                    currentSelection = null;
+                    const movingColors = getTopSameColorBlocks(currentSelection.tube, currentSelection.color.style.backgroundColor);
+                    moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
+
+                    movingColors.forEach(block => tube.appendChild(block));
+                    clearSelection();
                     checkWin();
                 }
             }
