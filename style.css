@@ -1,0 +1,43 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+#game-board {
+    display: flex;
+    gap: 10px;
+}
+
+.test-tube {
+    width: 50px;
+    height: 240px;
+    /* Zwiększone dla 5 miejsc */
+    border: 2px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.test-tube.small {
+    height: 100px;
+    /* Mniejsza wysokość dla mniejszej zlewki */
+}
+
+
+.color {
+    height: 20%;
+    /* Dopasowane dla 5 miejsc */
+    width: 100%;
+}
