@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const newGameButton = document.getElementById('new-game-button');
     let currentSelection = null;
     let moveHistory = [];
+    let undoCount = 5;
+
+    function updateUndoButtonText() {
+        undoButton.textContent = `Cofnij (${undoCount} pozostało)`;
+    }
 
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -95,14 +100,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     undoButton.addEventListener('click', () => {
-        if (moveHistory.length > 0) {
+        if (moveHistory.length > 0 && undoCount > 0) {
             const lastMove = moveHistory.pop();
             lastMove.blocks.forEach(block => lastMove.from.appendChild(block));
+            undoCount--;
+            updateUndoButtonText();
         }
     });
 
     newGameButton.addEventListener('click', () => {
         fillTubes();
+        undoCount = 5;
+        updateUndoButtonText();
     });
 
     tubes.forEach(tube => {
@@ -126,4 +135,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     fillTubes();
+    updateUndoButtonText();
 });
