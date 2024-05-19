@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetTubeEmpty && (sameColor || tube.childNodes.length === 0)) {
                 const movingColors = getTopSameColorBlocks(currentSelection.tube, currentSelection.color.style.backgroundColor);
 
-                // Check if the move is valid considering the remaining capacity
                 if (tube.childNodes.length + movingColors.length <= targetTubeCapacity) {
                     moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
                     movingColors.forEach(block => tube.appendChild(block));
@@ -109,13 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Funkcja pomocnicza do znalezienia sąsiadów bloku
+
     function getNeighbors(block) {
         const neighbors = [];
         const parentTube = block.parentElement;
         const index = Array.from(parentTube.childNodes).indexOf(block);
-        if (index > 0) neighbors.push(parentTube.childNodes[index - 1]); // Lewy sąsiad
-        if (index < parentTube.childNodes.length - 1) neighbors.push(parentTube.childNodes[index + 1]); // Prawy sąsiad
+        if (index > 0) neighbors.push(parentTube.childNodes[index - 1]);
+        if (index < parentTube.childNodes.length - 1) neighbors.push(parentTube.childNodes[index + 1]);
         return neighbors;
     }
 
