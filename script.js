@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tubes = document.querySelectorAll('.test-tube');
     const undoButton = document.getElementById('undo-button');
     const newGameButton = document.getElementById('new-game-button');
+    const winMessage = document.getElementById('win-message');
     let currentSelection = null;
     let moveHistory = [];
     let undoCount = 5;
@@ -90,13 +91,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkWin() {
-        let won = Array.from(tubes).filter(tube => !tube.classList.contains('small')).every(tube => {
-            let colorsInTube = Array.from(tube.childNodes).map(node => node.style.backgroundColor);
-            return new Set(colorsInTube).size === 1 && colorsInTube.length === 4;
+        const largeTubes = Array.from(tubes).filter(tube => !tube.classList.contains('small'));
+        let winCount = 0;
+
+        largeTubes.forEach(tube => {
+            const blocks = Array.from(tube.childNodes);
+
+            if (blocks.length === 4 && new Set(blocks.map(block => block.style.backgroundColor)).size === 1) {
+                winCount++;
+            }
         });
-        if (won) {
-            alert('Gratulacje! Wygrałeś!');
+
+        if (winCount === 6) {
+            winMessage.classList.remove('hidden');
         }
+    }
+
+
+
+    // Funkcja pomocnicza do znalezienia sąsiadów bloku
+    function getNeighbors(block) {
+        const neighbors = [];
+        const parentTube = block.parentElement;
+        const index = Array.from(parentTube.childNodes).indexOf(block);
+        if (index > 0) neighbors.push(parentTube.childNodes[index - 1]); // Lewy sąsiad
+        if (index < parentTube.childNodes.length - 1) neighbors.push(parentTube.childNodes[index + 1]); // Prawy sąsiad
+        return neighbors;
     }
 
     undoButton.addEventListener('click', () => {
@@ -112,7 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
         fillTubes();
         undoCount = 5;
         updateUndoButtonText();
+        moveHistory = [];
+        winMessage.classList.add('hidden');
     });
+
 
     tubes.forEach(tube => {
         tube.addEventListener('click', event => {
