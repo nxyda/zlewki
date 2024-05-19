@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple'];
     const tubes = document.querySelectorAll('.test-tube');
     const undoButton = document.getElementById('undo-button');
+    const newGameButton = document.getElementById('new-game-button');
     let currentSelection = null;
     let moveHistory = [];
 
@@ -45,15 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (targetTubeEmpty && (sameColor || tube.childNodes.length === 0)) {
                 const movingColors = getTopSameColorBlocks(currentSelection.tube, currentSelection.color.style.backgroundColor);
-                moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
 
-                movingColors.forEach(block => tube.appendChild(block));
-                clearSelection();
-                checkWin();
+                // Check if the move is valid considering the remaining capacity
+                if (tube.childNodes.length + movingColors.length <= targetTubeCapacity) {
+                    moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
+                    movingColors.forEach(block => tube.appendChild(block));
+                    clearSelection();
+                    checkWin();
+                } else {
+                    clearSelection();
+                }
             } else {
                 clearSelection();
             }
-        } else if (topColor && topColor === colorDiv) {
+        } else if (topColor && topColor === colorDiv && tube.lastElementChild === colorDiv) {
             currentSelection = { tube, color: colorDiv };
             colorDiv.style.border = '2px solid black';
         }
@@ -79,9 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkWin() {
-        let won = Array.from(tubes).every(tube => {
+        let won = Array.from(tubes).filter(tube => !tube.classList.contains('small')).every(tube => {
             let colorsInTube = Array.from(tube.childNodes).map(node => node.style.backgroundColor);
-            return new Set(colorsInTube).size <= 1;
+            return new Set(colorsInTube).size === 1 && colorsInTube.length === 4;
         });
         if (won) {
             alert('Gratulacje! Wygrałeś!');
@@ -95,16 +101,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    newGameButton.addEventListener('click', () => {
+        fillTubes();
+    });
+
     tubes.forEach(tube => {
         tube.addEventListener('click', event => {
-            if (event.target.classList.contains('color')) {
+            if (event.target.classList.contains('color') && tube.lastElementChild === event.target) {
                 selectColor(tube, event.target);
             } else if (tube === event.target && currentSelection) {
                 const targetTubeCapacity = tube.classList.contains('small') ? 2 : 4;
-                if (tube.childNodes.length < targetTubeCapacity) {
-                    const movingColors = getTopSameColorBlocks(currentSelection.tube, currentSelection.color.style.backgroundColor);
-                    moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
+                const topColor = tube.lastElementChild?.style.backgroundColor;
+                const sameColor = currentSelection.color.style.backgroundColor === topColor;
+                const movingColors = getTopSameColorBlocks(currentSelection.tube, currentSelection.color.style.backgroundColor);
 
+                if (tube.childNodes.length + movingColors.length <= targetTubeCapacity && (sameColor || tube.childNodes.length === 0)) {
+                    moveHistory.push({ from: currentSelection.tube, to: tube, blocks: movingColors });
                     movingColors.forEach(block => tube.appendChild(block));
                     clearSelection();
                     checkWin();
