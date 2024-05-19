@@ -7,6 +7,39 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSelection = null;
     let moveHistory = [];
     let undoCount = 5;
+    let startTime;
+    let timerInterval;
+
+    function startTimer() {
+        let isFirstMove = true;
+
+        function handleClick() {
+            if (isFirstMove) {
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 1000);
+                isFirstMove = false;
+                tubes.forEach(tube => {
+                    tube.removeEventListener('click', handleClick);
+                });
+            }
+        }
+
+        tubes.forEach(tube => {
+            tube.addEventListener('click', handleClick);
+        });
+    }
+
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    function updateTimer() {
+        const elapsedTime = Date.now() - startTime;
+        const minutes = Math.floor(elapsedTime / 60000);
+        const seconds = Math.floor((elapsedTime % 60000) / 1000);
+        document.getElementById('time').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
 
     function updateUndoButtonText() {
         undoButton.textContent = `Cofnij (${undoCount} pozostało)`;
@@ -103,6 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (winCount === 6) {
             winMessage.classList.remove('hidden');
+            stopTimer();
+            undoButton.disabled = true;
         }
     }
 
@@ -129,10 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newGameButton.addEventListener('click', () => {
         fillTubes();
+        document.getElementById('time').textContent = `${0}:${0 < 10 ? '0' : ''}${0}`;
+        startTimer();
         undoCount = 5;
         updateUndoButtonText();
         moveHistory = [];
         winMessage.classList.add('hidden');
+        undoButton.disabled = false;
     });
 
 
@@ -158,4 +196,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fillTubes();
     updateUndoButtonText();
+    startTimer();
 });
