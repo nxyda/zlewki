@@ -135,8 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (winCount === 6) {
-            winMessage.classList.remove('hidden');
             stopTimer();
+            winMessage.classList.remove('hidden');
             undoButton.disabled = true;
         }
     }
@@ -163,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     newGameButton.addEventListener('click', () => {
+        stopTimer();
         fillTubes();
         document.getElementById('time').textContent = `${0}:${0 < 10 ? '0' : ''}${0}`;
         startTimer();
